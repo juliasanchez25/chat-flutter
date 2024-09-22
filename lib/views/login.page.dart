@@ -1,7 +1,25 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  LoginPage({super.key});
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  login(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: passwordController.text);
+      Navigator.pushReplacementNamed(context, '/chats');
+    }
+    on FirebaseAuthException catch (ex) {
+      var snackBar = SnackBar(
+        content: Text(ex.message ?? 'Erro inesperado.'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +37,14 @@ class LoginPage extends StatelessWidget {
                 color: const Color(0xFFF7F7FC),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: const TextField(
+              child:  TextField(
                 keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: "E-mail",
                   hintStyle: TextStyle(),
                   border: InputBorder.none
                 ),
+                controller: emailController,
               ),
             ),
             const SizedBox(height: 12),
@@ -35,13 +54,14 @@ class LoginPage extends StatelessWidget {
                 color: const Color(0xFFF7F7FC),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: const TextField(
+              child: TextField(
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: "Password",
                   hintStyle: TextStyle(),
                   border: InputBorder.none
                 ),
+                controller: passwordController,
               ),
             ),
             Container(
@@ -52,7 +72,7 @@ class LoginPage extends StatelessWidget {
                     backgroundColor: WidgetStatePropertyAll(Color(0xFF002DE3)),
                   ),
                   onPressed: () {
-                    // TODO: Add login functionality
+                    login(context);
                   },
                   child: const Text("Login",
                       style: TextStyle(color: Colors.white))),

@@ -1,7 +1,27 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class NewAccountPage extends StatelessWidget {
-  const NewAccountPage({super.key});
+  NewAccountPage({super.key});
+
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  create(BuildContext context) async {
+   try {
+      var auth = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: emailController.text, password: passwordController.text);
+      auth.user?.updateDisplayName(nameController.text);
+      Navigator.pushReplacementNamed(context, '/chats');
+   }
+   on FirebaseAuthException catch (ex) {
+      var snackBar = SnackBar(
+        content: Text(ex.message ?? 'Erro inesperado.'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +61,14 @@ class NewAccountPage extends StatelessWidget {
                   color: const Color(0xFFF7F7FC),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const TextField(
+                child: TextField(
                   keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: "Name (Required)",
                     hintStyle: TextStyle(),
                     border: InputBorder.none
                   ),
+                  controller: nameController,
                 ),
               ),
               const SizedBox(height: 12),
@@ -57,13 +78,14 @@ class NewAccountPage extends StatelessWidget {
                   color: const Color(0xFFF7F7FC),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const TextField(
+                child:  TextField(
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: "E-mail (Required)",
                     hintStyle: TextStyle(),
                     border: InputBorder.none
                   ),
+                  controller: emailController,
                 ),
               ),
               const SizedBox(height: 12),
@@ -73,13 +95,14 @@ class NewAccountPage extends StatelessWidget {
                   color: const Color(0xFFF7F7FC),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const TextField(
+                child:  TextField(
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: "Password (Required)",
                     hintStyle: TextStyle(),
                     border: InputBorder.none
                   ),
+                  controller: passwordController,
                 ),
               ),
               Container(
@@ -90,7 +113,7 @@ class NewAccountPage extends StatelessWidget {
                       backgroundColor: WidgetStatePropertyAll(Color(0xFF002DE3)),
                     ),
                     onPressed: () {
-                      // TODO: Add login functionality
+                      create(context);
                     },
                     child: const Text("Save",
                         style: TextStyle(color: Colors.white))),
